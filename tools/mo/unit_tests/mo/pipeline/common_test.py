@@ -3,17 +3,37 @@
 
 import unittest
 
-from generator import generator, generate
-
 from openvino.tools.mo.graph.graph import Node
 from openvino.tools.mo.pipeline.common import determined_sort, get_fw_tensor_debug_info, get_sorted_outputs
 from unit_tests.utils.graph import build_graph_with_edge_attrs
 
 
-@generator
 class TestTopologicalSort(unittest.TestCase):
-    @generate(
-        [('A', 'Ad', {'out': 0}),
+    def test_determined_topological_sort(self, edges):
+        nodes = {'A': {'type': 'Identity', 'kind': 'op'},
+                 'B': {'type': 'Identity', 'kind': 'op'},
+                 'C': {'type': 'Identity', 'kind': 'op'},
+                 'D': {'type': 'Identity', 'kind': 'op'},
+                 'E': {'type': 'Identity', 'kind': 'op'},
+                 'F': {'type': 'Identity', 'kind': 'op'},
+                 'G': {'type': 'Identity', 'kind': 'op'},
+                 'H': {'type': 'Identity', 'kind': 'op'},
+                 'I': {'type': 'Identity', 'kind': 'op'},
+                 'J': {'type': 'Identity', 'kind': 'op'},
+                 'K': {'type': 'Identity', 'kind': 'op'},
+                 'Ad': {'value': None, 'kind': 'data'},
+                 'Bd': {'value': None, 'kind': 'data'},
+                 'Cd': {'value': None, 'kind': 'data'},
+                 'Dd': {'value': None, 'kind': 'data'},
+                 'Ed': {'value': None, 'kind': 'data'},
+                 'Fd': {'value': None, 'kind': 'data'},
+                 'Gd': {'value': None, 'kind': 'data'},
+                 'Hd': {'value': None, 'kind': 'data'},
+                 'Id': {'value': None, 'kind': 'data'},
+                 'Jd': {'value': None, 'kind': 'data'},
+                 'Kd': {'value': None, 'kind': 'data'},
+                 }
+        edges_all =         [('A', 'Ad', {'out': 0}),
          ('Ad', 'B', {'in': 0}),
          ('B', 'Bd', {'out': 0}),
          ('Bd', 'C', {'in': 0}),
@@ -93,38 +113,14 @@ class TestTopologicalSort(unittest.TestCase):
          ('Dd', 'F', {'in': 1}),
          ('Fd', 'H', {'in': 1}),
          ('Gd', 'H', {'in': 0})]
-    )
-    def test_determined_topological_sort(self, edges):
-        nodes = {'A': {'type': 'Identity', 'kind': 'op'},
-                 'B': {'type': 'Identity', 'kind': 'op'},
-                 'C': {'type': 'Identity', 'kind': 'op'},
-                 'D': {'type': 'Identity', 'kind': 'op'},
-                 'E': {'type': 'Identity', 'kind': 'op'},
-                 'F': {'type': 'Identity', 'kind': 'op'},
-                 'G': {'type': 'Identity', 'kind': 'op'},
-                 'H': {'type': 'Identity', 'kind': 'op'},
-                 'I': {'type': 'Identity', 'kind': 'op'},
-                 'J': {'type': 'Identity', 'kind': 'op'},
-                 'K': {'type': 'Identity', 'kind': 'op'},
-                 'Ad': {'value': None, 'kind': 'data'},
-                 'Bd': {'value': None, 'kind': 'data'},
-                 'Cd': {'value': None, 'kind': 'data'},
-                 'Dd': {'value': None, 'kind': 'data'},
-                 'Ed': {'value': None, 'kind': 'data'},
-                 'Fd': {'value': None, 'kind': 'data'},
-                 'Gd': {'value': None, 'kind': 'data'},
-                 'Hd': {'value': None, 'kind': 'data'},
-                 'Id': {'value': None, 'kind': 'data'},
-                 'Jd': {'value': None, 'kind': 'data'},
-                 'Kd': {'value': None, 'kind': 'data'},
-                 }
-
-        graph = build_graph_with_edge_attrs(nodes, edges)
-        outputs = [Node(graph, 'Kd')]
-        for i in range(100):
-            op_order, data_order = determined_sort(outputs)
-            self.assertListEqual(op_order, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
-            self.assertListEqual(data_order, ['Ad', 'Bd', 'Cd', 'Dd', 'Ed', 'Fd', 'Gd', 'Hd', 'Id', 'Jd', 'Kd'])
+        for i in edges_all:
+            with unittest.subtest(i=i):
+                graph = build_graph_with_edge_attrs(nodes, edges)
+                outputs = [Node(graph, 'Kd')]
+                for i in range(100):
+                    op_order, data_order = determined_sort(outputs)
+                    self.assertListEqual(op_order, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
+                    self.assertListEqual(data_order, ['Ad', 'Bd', 'Cd', 'Dd', 'Ed', 'Fd', 'Gd', 'Hd', 'Id', 'Jd', 'Kd'])
 
 
 class TestGetFWTensorName(unittest.TestCase):
